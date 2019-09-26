@@ -1,12 +1,13 @@
 {
-  "name": "Start on Heroku: Go",
-  "description": "Go Getting Started Example App",
+  "name": "crypto-coins-trader",
+  "description": "Prototype API for crypto coins trading using GOLANG, POSTGRESQL and HEROKU for deploy",
   "keywords": [
-    "getting-started",
-    "go",
-    "sample",
-    "example"
+    "crypto",
+    "coin",
+    "trader",
+    "golang",
+    "API"
   ],
-  "website": "http://github.com/heroku/go-getting-started",
-  "repository": "http://github.com/heroku/go-getting-started"
+  "website": "https://github.com/joaogsousa/crypto-coins-trader",
+  "repository": "https://github.com/joaogsousa/crypto-coins-trader"
 }

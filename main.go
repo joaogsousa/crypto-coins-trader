@@ -59,23 +59,17 @@ func main() {
 
 	router := gin.New()
 	router.Use(gin.Logger())
-	router.LoadHTMLGlob("templates/*.tmpl.html")
-	router.Static("/static", "static")
 
-	db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
-    if err != nil {
-        log.Fatalf("Error opening database: %q", err)
-    }
+	//db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
+    //if err != nil {
+    //    log.Fatalf("Error opening database: %q", err)
+    //}
 
-	router.GET("/", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "index.tmpl.html", nil)
-	})
 	
 	router.GET("/mark", func(c *gin.Context) {
 		c.String(http.StatusOK, string(blackfriday.Run([]byte("**hi!**"))))
 	})
 
-	router.GET("/db", dbFunc(db))
 
 	router.Run(":" + port)
 }
