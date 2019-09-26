@@ -2,53 +2,54 @@ package main
 
 import (
 	_ "bytes"
-    "database/sql"
-    "fmt"
-    "log"
-    "net/http"
-    "os"
-    _ "strconv"
-    "time"
+	"database/sql"
+	"fmt"
+	"log"
+	"net/http"
+	"os"
+	"register"
+	_ "strconv"
+	"time"
 
-    "github.com/gin-gonic/gin"
-    _ "github.com/heroku/x/hmetrics/onload"
-    _ "github.com/lib/pq"
-    "github.com/russross/blackfriday"
+	"github.com/gin-gonic/gin"
+	_ "github.com/heroku/x/hmetrics/onload"
+	_ "github.com/lib/pq"
+	"github.com/russross/blackfriday"
 )
-
+/* 
 func dbFunc(db *sql.DB) gin.HandlerFunc {
-    return func(c *gin.Context) {
-        if _, err := db.Exec("CREATE TABLE IF NOT EXISTS ticks (tick timestamp)"); err != nil {
-            c.String(http.StatusInternalServerError,
-                fmt.Sprintf("Error creating database table: %q", err))
-            return
-        }
+	return func(c *gin.Context) {
+		if _, err := db.Exec("CREATE TABLE IF NOT EXISTS ticks (tick timestamp)"); err != nil {
+			c.String(http.StatusInternalServerError,
+				fmt.Sprintf("Error creating database table: %q", err))
+			return
+		}
 
-        if _, err := db.Exec("INSERT INTO ticks VALUES (now())"); err != nil {
-            c.String(http.StatusInternalServerError,
-                fmt.Sprintf("Error incrementing tick: %q", err))
-            return
-        }
+		if _, err := db.Exec("INSERT INTO ticks VALUES (now())"); err != nil {
+			c.String(http.StatusInternalServerError,
+				fmt.Sprintf("Error incrementing tick: %q", err))
+			return
+		}
 
-        rows, err := db.Query("SELECT tick FROM ticks")
-        if err != nil {
-            c.String(http.StatusInternalServerError,
-                fmt.Sprintf("Error reading ticks: %q", err))
-            return
-        }
+		rows, err := db.Query("SELECT tick FROM ticks")
+		if err != nil {
+			c.String(http.StatusInternalServerError,
+				fmt.Sprintf("Error reading ticks: %q", err))
+			return
+		}
 
-        defer rows.Close()
-        for rows.Next() {
-            var tick time.Time
-            if err := rows.Scan(&tick); err != nil {
-                c.String(http.StatusInternalServerError,
-                    fmt.Sprintf("Error scanning ticks: %q", err))
-                return
-            }
-            c.String(http.StatusOK, fmt.Sprintf("Read from DB: %s\n", tick.String()))
-        }
-    }
-}
+		defer rows.Close()
+		for rows.Next() {
+			var tick time.Time
+			if err := rows.Scan(&tick); err != nil {
+				c.String(http.StatusInternalServerError,
+					fmt.Sprintf("Error scanning ticks: %q", err))
+				return
+			}
+			c.String(http.StatusOK, fmt.Sprintf("Read from DB: %s\n", tick.String()))
+		}
+	}
+} */
 
 func main() {
 	port := os.Getenv("PORT")
@@ -57,19 +58,18 @@ func main() {
 		log.Fatal("$PORT must be set")
 	}
 
-	router := gin.New()
-	router.Use(gin.Logger())
+	router := gin.Default()
 
-	//db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
-    //if err != nil {
-    //    log.Fatalf("Error opening database: %q", err)
-    //}
+	db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
+	if err != nil {
+		log.Fatalf("Error opening database: %q", err)
+	}
 
-	
 	router.GET("/mark", func(c *gin.Context) {
 		c.String(http.StatusOK, string(blackfriday.Run([]byte("**hi!**"))))
 	})
 
+	router.POST("/users/register", register.NewUser(db))
 
 	router.Run(":" + port)
 }
