@@ -15,8 +15,7 @@ type Credentials struct {
 
 func checkValidCredentials(credentials Credentials, db *sql.DB) (bool, string) {
 	if credentials.email == "" || credentials.password == "" {
-		return false
-		return "In order to sign in provide as form values email and password"
+		return false, "In order to sign in provide as form values email and password"
 	}
 
 	row := db.QueryRow(`
@@ -26,16 +25,13 @@ func checkValidCredentials(credentials Credentials, db *sql.DB) (bool, string) {
 
 	var expectedPassword string
 	if err := row.Scan(&expectedPassword); err != nil {
-		return false
-		return "There is no user with the specifyed email"
+		return false, "There is no user with the specifyed email"
 	}
 
 	if expectedPassword == credentials.password {
-		return true
-		return "User authorized!"
+		return true, "User authorized!"
 	} else {
-		return false
-		return "Password does not match users password"
+		return false, "Password does not match users password"
 	}
 }
 
