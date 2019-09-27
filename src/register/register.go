@@ -3,7 +3,7 @@ package register
 import (
 	"database/sql"
 	"fmt"
-	"net/http"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,7 +16,7 @@ type User struct {
 
 func NewUser(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.String(http.statusOK, "entered user register")
+		c.String(200, "entered user register")
 		fmt.Println("c.PostForm", c.PostForm)
 	}
 }

@@ -3,20 +3,19 @@ package main
 import (
 	_ "bytes"
 	"database/sql"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
-	"register"
 	_ "strconv"
-	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/heroku/go-getting-started/src/register"
 	_ "github.com/heroku/x/hmetrics/onload"
 	_ "github.com/lib/pq"
 	"github.com/russross/blackfriday"
 )
-/* 
+
+/*
 func dbFunc(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if _, err := db.Exec("CREATE TABLE IF NOT EXISTS ticks (tick timestamp)"); err != nil {
