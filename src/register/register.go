@@ -38,7 +38,7 @@ func NewUser(db *sql.DB) gin.HandlerFunc {
 
 		_, err := db.Exec(`
 			INSERT INTO users (name, email, password, birthdate)  
-			VALUES (?, ?,?,?);
+			VALUES ($1, $2, $3, $4);
 		`, user.name, user.email, user.password, user.birthdate)
 		if err != nil {
 			c.String(http.StatusInternalServerError,
