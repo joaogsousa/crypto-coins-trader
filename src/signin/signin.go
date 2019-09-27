@@ -2,7 +2,6 @@ package signin
 
 import (
 	"database/sql"
-	"fmt"
 	"net/http"
 	_ "strconv"
 
@@ -14,7 +13,12 @@ type Credentials struct {
 	password string
 }
 
-func checkValidCredentials(credentials Credentials, db *sql.DB) bool {
+func checkValidCredentials(credentials Credentials, db *sql.DB) (bool, string) {
+	if credentials.email == "" || credentials.password == "" {
+		return false
+		return "In order to sign in provide as form values email and password"
+	}
+
 	row := db.QueryRow(`
 		SELECT password FROM users  
 		WHERE email = $1;
@@ -22,15 +26,16 @@ func checkValidCredentials(credentials Credentials, db *sql.DB) bool {
 
 	var expectedPassword string
 	if err := row.Scan(&expectedPassword); err != nil {
-		fmt.Println("Error occured while fetching password from database")
 		return false
+		return "There is no user with the specifyed email"
 	}
 
 	if expectedPassword == credentials.password {
 		return true
+		return "User authorized!"
 	} else {
-		fmt.Println("Password does not match users password")
 		return false
+		return "Password does not match users password"
 	}
 }
 
@@ -41,10 +46,11 @@ func SignIn(db *sql.DB) gin.HandlerFunc {
 		credentials.email = c.PostForm("email")
 		credentials.password = c.PostForm("password")
 
-		if !checkValidCredentials(credentials, db) {
-			c.String(http.StatusUnauthorized, "Unautorized. Check if you sent correct credentials on POST form: email, password.")
+		if ok, feedback := checkValidCredentials(credentials, db); !ok {
+			c.String(http.StatusUnauthorized, feedback)
 			return
+		} else {
+			c.String(http.StatusOK, feedback)
 		}
-		c.String(http.StatusOK, "User authorized!")
 	}
 }
