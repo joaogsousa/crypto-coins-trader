@@ -64,7 +64,7 @@ func main() {
 		log.Fatalf("Error opening database: %q", err)
 	}
 
-	router.GET("/mark", func(c *gin.Context) {
+	router.GET("/", func(c *gin.Context) {
 		c.String(http.StatusOK, string(blackfriday.Run([]byte("**hi!**"))))
 	})
 
