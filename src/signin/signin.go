@@ -6,6 +6,7 @@ import (
 	_ "strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/heroku/go-getting-started/src/jwt"
 )
 
 type Credentials struct {
@@ -46,7 +47,16 @@ func SignIn(db *sql.DB) gin.HandlerFunc {
 			c.String(http.StatusUnauthorized, feedback)
 			return
 		} else {
-			c.String(http.StatusOK, feedback)
+			generatedJwt, err := jwt.GetUserJwt(credentials.email)
+			if err != nil {
+				c.String(http.StatusInternalServerError, err.Error())
+			} else {
+				c.JSON(http.StatusOK, gin.H{
+					"message": "User successfully signed in! Use this jwt for requests authentication",
+					"email":   credentials.email,
+					"jwt":     generatedJwt,
+				})
+			}
 		}
 	}
 }
