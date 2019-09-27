@@ -33,11 +33,20 @@ func NewUser(db *sql.DB) gin.HandlerFunc {
 		user.birthdate = c.PostForm("birthdate")
 
 		if !checkValidUser(user) {
-			c.String(http.StatusBadRequest, "User data was not correctly provided. Send: name,email,password and bithdate")
+			c.String(http.StatusBadRequest, "User data was not correctly provided. Send: name,email,password and bithdate on POST form")
+		}
+
+		_, err := db.Exec(`
+			INSERT INTO users (name, email, password, birthdate)  
+			VALUES (?, ?,?,?);
+		`, user.name, user.email, user.password, user.birthdate)
+		if err != nil {
+			c.String(http.StatusInternalServerError,
+				fmt.Sprintf("Error inserting new user: %v", err))
+			return
 		}
 
 		c.String(http.StatusOK, "User registered!")
-
 		fmt.Println("User registered: ", user)
 	}
 }
