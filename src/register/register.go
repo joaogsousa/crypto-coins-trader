@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,7 +15,7 @@ type User struct {
 	password  string
 	birthdate string
 	cash      float64
-	coins     int
+	coins     int64
 }
 
 func checkValidUser(user User) bool {
@@ -33,8 +34,8 @@ func NewUser(db *sql.DB) gin.HandlerFunc {
 		user.email = c.PostForm("email")
 		user.password = c.PostForm("password")
 		user.birthdate = c.PostForm("birthdate")
-		user.cash = c.PostForm("cash")
-		user.coins = c.PostForm("coins")
+		user.cash, _ = strconv.ParseFloat(c.PostForm("cash"), 64)
+		user.coins, _ = strconv.ParseInt(c.PostForm("coins"), 10, 64)
 
 		if !checkValidUser(user) {
 			c.String(http.StatusBadRequest, "User data was not correctly provided. Send: name,email,password and bithdate on POST form")
