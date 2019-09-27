@@ -20,9 +20,18 @@ func checkValidCredentials(credentials Credentials, db *sql.DB) bool {
 		WHERE email = $1;
 	`, credentials.email)
 
-	fmt.Println("fetched row: ", row)
+	var expectedPassword string
+	if err := row.Scan(&expectedPassword); err != nil {
+		fmt.Println("Error occured while fetching password from database")
+		return false
+	}
 
-	return true
+	if expectedPassword == credentials.password {
+		return true
+	} else {
+		fmt.Println("Password does not match users password")
+		return false
+	}
 }
 
 func SignIn(db *sql.DB) gin.HandlerFunc {
