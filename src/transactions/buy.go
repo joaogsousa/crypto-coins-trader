@@ -53,6 +53,10 @@ func checkAvailableCoins(userId string, coinsAmount int, db *sql.DB) (bool, stri
 func Buy(db *sql.DB, c *gin.Context) {
 	var buyOperation BuyOperation = BuyOperation{}
 
+	if c.PostForm("sellingUserId") == "" || c.PostForm("coinsAmount") == "" {
+		c.String(http.StatusBadRequest, "Bad request. Provide sellingUserId and coinsAmount as POST form values")
+	}
+
 	buyOperation.sellingUserId = c.PostForm("sellingUserId")
 
 	coinsAmount, _ := strconv.ParseInt(c.PostForm("coinsAmount"), 10, 64)
