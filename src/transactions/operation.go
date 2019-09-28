@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type BuyOperation struct {
+type TradeInfo struct {
 	buyingUserId  string
 	sellingUserId string
 	coinsAmount   int
@@ -53,42 +53,58 @@ func checkAvailableCoins(userId string, coinsAmount int, db *sql.DB) (bool, stri
 	}
 }
 
-func Buy(db *sql.DB, c *gin.Context) {
+func Operation(db *sql.DB, c *gin.Context, operationType string) {
 	// TODO receber tambem a DATA da operacao!!!!!
-	if c.PostForm("sellingUserId") == "" || c.PostForm("coinsAmount") == "" || c.PostForm("date") == "" {
-		c.String(http.StatusBadRequest, "Bad request. Provide sellingUserId, coinsAmount and date as POST form values")
+	if c.PostForm("userId") == "" || c.PostForm("coinsAmount") == "" || c.PostForm("date") == "" {
+		c.String(http.StatusBadRequest, "Bad request. Provide serId, coinsAmount and date as POST form values")
+		return
 	}
 
-	userId, err := c.Cookie("userId")
+	operationEndUserId := c.PostForm("userId")
+	loggedUserId, err := c.Cookie("userId")
 	if err != nil {
-		c.String(http.StatusInternalServerError, "Coundnt retrieve ID for the operating user")
+		c.String(http.StatusInternalServerError, "Coundnt retrieve ID for the logged user")
 		return
 	}
 
 	coinsAmount, _ := strconv.Atoi(c.PostForm("coinsAmount"))
 
-	buyOperation := BuyOperation{
-		buyingUserId:  userId,
-		sellingUserId: c.PostForm("sellingUserId"),
+	var buyingUserId, sellingUserId string
+	if operationType == "buy" {
+		buyingUserId = loggedUserId
+		sellingUserId = operationEndUserId
+	} else { // sell operation
+		buyingUserId = operationEndUserId
+		sellingUserId = loggedUserId
+	}
+
+	tradeInfo := TradeInfo{
+		buyingUserId:  buyingUserId,
+		sellingUserId: sellingUserId,
 		coinsAmount:   coinsAmount,
 		operationCost: float64(coinsAmount * CoinPrice),
 		date:          c.PostForm("date"),
 	}
 
-	ok, feedback := checkAvailableCredit(buyOperation.buyingUserId, buyOperation.operationCost, db)
+	if tradeInfo.buyingUserId == tradeInfo.sellingUserId {
+		c.String(http.StatusBadRequest, "Invalid operation. buyingUserId and sellingUserId are the same.")
+		return
+	}
+
+	ok, feedback := checkAvailableCredit(tradeInfo.buyingUserId, tradeInfo.operationCost, db)
 	if !ok {
 		c.String(http.StatusMethodNotAllowed, feedback)
 		return
 	}
 
-	ok, feedback = checkAvailableCoins(buyOperation.sellingUserId, buyOperation.coinsAmount, db)
+	ok, feedback = checkAvailableCoins(tradeInfo.sellingUserId, tradeInfo.coinsAmount, db)
 	if !ok {
 		c.String(http.StatusMethodNotAllowed, feedback)
 		return
 	}
 
 	// operation permited, proceed...
-	err = TradeOperation(buyOperation, c, db)
+	err = TradeOperation(tradeInfo, c, db)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
 		return

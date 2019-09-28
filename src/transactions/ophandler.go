@@ -37,12 +37,19 @@ func IsAuthorized(c *gin.Context) bool {
 	return true
 }
 
-func Operation(db *sql.DB) gin.HandlerFunc {
+func OperationHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		//operationType := c.Param("operation")
+		operationType := c.Param("operation")
+		if operationType != "buy" && operationType != "sell" {
+			c.String(
+				http.StatusBadRequest,
+				"Bad request. Please indicate operation type. Either /transactions/buy or /transactions/sell",
+			)
+			return
+		}
 
 		if IsAuthorized(c) {
-			Buy(db, c)
+			Operation(db, c, operationType)
 		}
 	}
 }
