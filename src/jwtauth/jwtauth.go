@@ -15,7 +15,7 @@ type Claims struct {
 var SecretKey = []byte("very_strong_and_roboust_secret_key")
 
 func GetUserJwt(email string) (string, error) {
-	expirationTime := time.Now().Add(10 * time.Minute)
+	expirationTime := time.Now().Add(5 * time.Minute)
 
 	claims := &Claims{
 		email: email,

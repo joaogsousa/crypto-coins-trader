@@ -3,7 +3,7 @@ package signin
 import (
 	"database/sql"
 	"net/http"
-	_ "strconv"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/heroku/go-getting-started/src/jwtauth"
@@ -14,27 +14,28 @@ type Credentials struct {
 	password string
 }
 
-const HOUR int = 60 * 60 * 1000
+const MINUTE int = 60 * 1000
 
-func checkValidCredentials(credentials Credentials, db *sql.DB) (bool, string) {
+func checkValidCredentials(credentials Credentials, db *sql.DB) (int, string) {
 	if credentials.email == "" || credentials.password == "" {
-		return false, "In order to sign in provide as form values email and password"
+		return 0, "In order to sign in provide as form values email and password"
 	}
 
 	row := db.QueryRow(`
-		SELECT password FROM users  
+		SELECT id, password FROM users  
 		WHERE email = $1;
 	`, credentials.email)
 
+	var userId int
 	var expectedPassword string
-	if err := row.Scan(&expectedPassword); err != nil {
-		return false, "There is no user with the specifyed email"
+	if err := row.Scan(&userId, &expectedPassword); err != nil {
+		return 0, "There is no user with the specifyed email"
 	}
 
 	if expectedPassword == credentials.password {
-		return true, "User authorized!"
+		return userId, "User authorized!"
 	} else {
-		return false, "Password does not match users password"
+		return 0, "Password does not match users password"
 	}
 }
 
@@ -45,7 +46,7 @@ func SignIn(db *sql.DB) gin.HandlerFunc {
 		credentials.email = c.PostForm("email")
 		credentials.password = c.PostForm("password")
 
-		if ok, feedback := checkValidCredentials(credentials, db); !ok {
+		if userId, feedback := checkValidCredentials(credentials, db); userId == 0 {
 			c.String(http.StatusUnauthorized, feedback)
 			return
 		} else {
@@ -54,7 +55,8 @@ func SignIn(db *sql.DB) gin.HandlerFunc {
 				c.String(http.StatusInternalServerError, err.Error())
 				return
 			} else {
-				c.SetCookie("jwt", generatedJwt, 1*HOUR, "/", "", true, true)
+				c.SetCookie("userId", strconv.Itoa(userId), 10*MINUTE, "/", "", true, true)
+				c.SetCookie("jwt", generatedJwt, 10*MINUTE, "/", "", true, true)
 				c.JSON(http.StatusOK, gin.H{
 					"message": "User successfully signed in! Use this jwt for requests authentication",
 					"email":   credentials.email,

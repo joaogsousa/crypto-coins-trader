@@ -10,6 +10,8 @@ import (
 	"github.com/heroku/go-getting-started/src/jwtauth"
 )
 
+const CoinPrice int = 10
+
 func IsAuthorized(c *gin.Context) bool {
 	tokenStr, err := c.Cookie("jwt")
 
@@ -24,11 +26,7 @@ func IsAuthorized(c *gin.Context) bool {
 		return jwtauth.SecretKey, nil
 	})
 	if err != nil {
-		if err == jwt.ErrSignatureInvalid {
-			c.String(http.StatusUnauthorized, "Invalid signature for jwt token")
-			return false
-		}
-		c.String(http.StatusBadRequest, "Bad request...")
+		c.String(http.StatusUnauthorized, "Invalid signature for jwt token")
 		return false
 	}
 	if !token.Valid {
@@ -44,7 +42,7 @@ func Operation(db *sql.DB) gin.HandlerFunc {
 		//operationType := c.Param("operation")
 
 		if IsAuthorized(c) {
-			c.String(http.StatusOK, "Authorized route!")
+			Buy(db, c)
 		}
 	}
 }
