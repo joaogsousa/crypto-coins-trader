@@ -10,8 +10,11 @@ import (
 )
 
 type BuyOperation struct {
+	buyingUserId  string
 	sellingUserId string
 	coinsAmount   int
+	operationCost float64
+	date          string
 }
 
 func checkAvailableCredit(userId string, operationCost float64, db *sql.DB) (bool, string) {
@@ -52,24 +55,27 @@ func checkAvailableCoins(userId string, coinsAmount int, db *sql.DB) (bool, stri
 
 func Buy(db *sql.DB, c *gin.Context) {
 	// TODO receber tambem a DATA da operacao!!!!!
-	var buyOperation BuyOperation = BuyOperation{}
-
-	if c.PostForm("sellingUserId") == "" || c.PostForm("coinsAmount") == "" {
-		c.String(http.StatusBadRequest, "Bad request. Provide sellingUserId and coinsAmount as POST form values")
+	if c.PostForm("sellingUserId") == "" || c.PostForm("coinsAmount") == "" || c.PostForm("date") == "" {
+		c.String(http.StatusBadRequest, "Bad request. Provide sellingUserId, coinsAmount and date as POST form values")
 	}
-
-	buyOperation.sellingUserId = c.PostForm("sellingUserId")
-
-	coinsAmount, _ := strconv.ParseInt(c.PostForm("coinsAmount"), 10, 64)
-	buyOperation.coinsAmount = int(coinsAmount)
 
 	userId, err := c.Cookie("userId")
 	if err != nil {
-		c.String(http.StatusInternalServerError, "Internal server error... Coundnt retrieve user ID")
+		c.String(http.StatusInternalServerError, "Coundnt retrieve ID for the operating user")
 		return
 	}
 
-	ok, feedback := checkAvailableCredit(userId, float64(buyOperation.coinsAmount*CoinPrice), db)
+	coinsAmount, _ := strconv.Atoi(c.PostForm("coinsAmount"))
+
+	buyOperation := BuyOperation{
+		buyingUserId:  userId,
+		sellingUserId: c.PostForm("sellingUserId"),
+		coinsAmount:   coinsAmount,
+		operationCost: float64(coinsAmount * CoinPrice),
+		date:          c.PostForm("date"),
+	}
+
+	ok, feedback := checkAvailableCredit(buyOperation.buyingUserId, buyOperation.operationCost, db)
 	if !ok {
 		c.String(http.StatusMethodNotAllowed, feedback)
 		return
@@ -81,5 +87,12 @@ func Buy(db *sql.DB, c *gin.Context) {
 		return
 	}
 
-	c.String(http.StatusOK, "Operation permitted")
+	// operation permited, proceed...
+	err = TradeOperation(buyOperation, c, db)
+	if err != nil {
+		c.String(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.String(http.StatusOK, "Coin trade processed succesfully")
 }
