@@ -51,6 +51,7 @@ func checkAvailableCoins(userId string, coinsAmount int, db *sql.DB) (bool, stri
 }
 
 func Buy(db *sql.DB, c *gin.Context) {
+	// TODO receber tambem a DATA da operacao!!!!!
 	var buyOperation BuyOperation = BuyOperation{}
 
 	if c.PostForm("sellingUserId") == "" || c.PostForm("coinsAmount") == "" {
