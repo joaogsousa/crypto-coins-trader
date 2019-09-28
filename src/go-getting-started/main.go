@@ -72,7 +72,7 @@ func main() {
 
 	router.POST("/users/register", register.NewUser(db))
 	router.POST("/users/signin", signin.SignIn(db))
-	router.POST("/users/transactions/:operation", transactions.Operation(db))
+	router.POST("/transactions/:operation", transactions.Operation(db))
 
 	router.Run(":" + port)
 }

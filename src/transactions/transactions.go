@@ -14,6 +14,7 @@ func IsAuthorized(c *gin.Context) bool {
 	tokenStr, err := c.Cookie("jwt")
 
 	if err != nil {
+		c.String(http.StatusUnauthorized, "Unautorized. You must provide a JWT token to access this route. -> Sign in first...")
 		return false
 	}
 
