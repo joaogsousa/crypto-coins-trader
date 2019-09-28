@@ -11,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/heroku/go-getting-started/src/register"
 	"github.com/heroku/go-getting-started/src/signin"
+	"github.com/heroku/go-getting-started/src/transactions"
 	_ "github.com/heroku/x/hmetrics/onload"
 	_ "github.com/lib/pq"
 	"github.com/russross/blackfriday"
@@ -71,6 +72,7 @@ func main() {
 
 	router.POST("/users/register", register.NewUser(db))
 	router.POST("/users/signin", signin.SignIn(db))
+	router.POST("/users/transactions/:operation", transactions.Operation(db))
 
 	router.Run(":" + port)
 }
