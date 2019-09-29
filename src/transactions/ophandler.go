@@ -10,8 +10,6 @@ import (
 	"github.com/heroku/go-getting-started/src/jwtauth"
 )
 
-const CoinPrice int = 10
-
 func IsAuthorized(c *gin.Context) bool {
 	tokenStr, err := c.Cookie("jwt")
 

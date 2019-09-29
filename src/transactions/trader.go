@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/heroku/go-getting-started/src/report"
 )
 
 func CashOperation(userId string, operationValue float64, db *sql.DB) (bool, string) {
@@ -57,30 +58,30 @@ func CoinsOperation(userId string, coinsAmount int, db *sql.DB) (bool, string) {
 	return true, "Coins transfer succesfull"
 }
 
-func TradeOperation(tradeInfo TradeInfo, c *gin.Context, db *sql.DB) error {
+func TradeOperation(tradeInfo report.TradeInfo, c *gin.Context, db *sql.DB) error {
 	var ok bool
 	var feedback string
 
 	// charge money from the buying user
-	ok, feedback = CashOperation(tradeInfo.buyingUserId, -1*tradeInfo.operationCost, db)
+	ok, feedback = CashOperation(tradeInfo.BuyingUserId, -1*tradeInfo.OperationCost, db)
 	if !ok {
 		return errors.New(feedback)
 	}
 
 	// credit money from the selling user
-	ok, feedback = CashOperation(tradeInfo.sellingUserId, tradeInfo.operationCost, db)
+	ok, feedback = CashOperation(tradeInfo.SellingUserId, tradeInfo.OperationCost, db)
 	if !ok {
 		return errors.New(feedback)
 	}
 
 	// charge coins from the selling user
-	ok, feedback = CoinsOperation(tradeInfo.sellingUserId, -1*tradeInfo.coinsAmount, db)
+	ok, feedback = CoinsOperation(tradeInfo.SellingUserId, -1*tradeInfo.CoinsAmount, db)
 	if !ok {
 		return errors.New(feedback)
 	}
 
 	// credit coins to the buying user
-	ok, feedback = CoinsOperation(tradeInfo.buyingUserId, tradeInfo.coinsAmount, db)
+	ok, feedback = CoinsOperation(tradeInfo.BuyingUserId, tradeInfo.CoinsAmount, db)
 	if !ok {
 		return errors.New(feedback)
 	}

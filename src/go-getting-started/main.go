@@ -14,7 +14,6 @@ import (
 	"github.com/heroku/go-getting-started/src/transactions"
 	_ "github.com/heroku/x/hmetrics/onload"
 	_ "github.com/lib/pq"
-	"github.com/russross/blackfriday"
 )
 
 func main() {
@@ -32,7 +31,7 @@ func main() {
 	}
 
 	router.GET("/", func(c *gin.Context) {
-		c.String(http.StatusOK, string(blackfriday.Run([]byte("**hi!**"))))
+		c.String(http.StatusOK, "RedCoins crypto-coins trader")
 	})
 
 	router.POST("/users/register", register.NewUser(db))

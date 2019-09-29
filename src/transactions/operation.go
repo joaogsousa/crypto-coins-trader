@@ -7,15 +7,9 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/heroku/go-getting-started/src/report"
+	"github.com/heroku/go-getting-started/src/utils"
 )
-
-type TradeInfo struct {
-	buyingUserId  string
-	sellingUserId string
-	coinsAmount   int
-	operationCost float64
-	date          string
-}
 
 func checkAvailableCredit(userId string, operationCost float64, db *sql.DB) (bool, string) {
 	row := db.QueryRow(`
@@ -56,7 +50,7 @@ func checkAvailableCoins(userId string, coinsAmount int, db *sql.DB) (bool, stri
 func Operation(db *sql.DB, c *gin.Context, operationType string) {
 	// TODO receber tambem a DATA da operacao!!!!!
 	if c.PostForm("userId") == "" || c.PostForm("coinsAmount") == "" || c.PostForm("date") == "" {
-		c.String(http.StatusBadRequest, "Bad request. Provide serId, coinsAmount and date as POST form values")
+		c.String(http.StatusBadRequest, "Bad request. Provide userId, coinsAmount and date as POST form values")
 		return
 	}
 
@@ -78,26 +72,26 @@ func Operation(db *sql.DB, c *gin.Context, operationType string) {
 		sellingUserId = loggedUserId
 	}
 
-	tradeInfo := TradeInfo{
-		buyingUserId:  buyingUserId,
-		sellingUserId: sellingUserId,
-		coinsAmount:   coinsAmount,
-		operationCost: float64(coinsAmount * CoinPrice),
-		date:          c.PostForm("date"),
+	tradeInfo := report.TradeInfo{
+		BuyingUserId:  buyingUserId,
+		SellingUserId: sellingUserId,
+		CoinsAmount:   coinsAmount,
+		OperationCost: float64(coinsAmount * utils.CoinPrice),
+		Date:          c.PostForm("date"),
 	}
 
-	if tradeInfo.buyingUserId == tradeInfo.sellingUserId {
+	if tradeInfo.BuyingUserId == tradeInfo.SellingUserId {
 		c.String(http.StatusBadRequest, "Invalid operation. buyingUserId and sellingUserId are the same.")
 		return
 	}
 
-	ok, feedback := checkAvailableCredit(tradeInfo.buyingUserId, tradeInfo.operationCost, db)
+	ok, feedback := checkAvailableCredit(tradeInfo.BuyingUserId, tradeInfo.OperationCost, db)
 	if !ok {
 		c.String(http.StatusMethodNotAllowed, feedback)
 		return
 	}
 
-	ok, feedback = checkAvailableCoins(tradeInfo.sellingUserId, tradeInfo.coinsAmount, db)
+	ok, feedback = checkAvailableCoins(tradeInfo.SellingUserId, tradeInfo.CoinsAmount, db)
 	if !ok {
 		c.String(http.StatusMethodNotAllowed, feedback)
 		return
@@ -110,5 +104,16 @@ func Operation(db *sql.DB, c *gin.Context, operationType string) {
 		return
 	}
 
-	c.String(http.StatusOK, "Coin trade processed succesfully")
+	fmt.Println("Coin trade registered in database (without report yet)")
+
+	//insert operation report on database
+	var reportInfo *report.ReportInfo = &report.ReportInfo{}
+	reportInfo.Init(tradeInfo)
+	ok = reportInfo.ReportOperation(db)
+
+	if ok {
+		c.String(http.StatusOK, "Coin trade operation registered succesfully")
+	} else {
+		c.String(http.StatusInternalServerError, "Server error, unable to register coin trade")
+	}
 }
