@@ -36,11 +36,11 @@ func getQuery(userId string, date string) string {
 
 	var query string
 	if userId != "" && date != "" {
-		query = selectStatement + `WHERE ` + userCondition + `AND ` + dateCondition
+		query = selectStatement + ` WHERE ` + userCondition + ` AND ` + dateCondition
 	} else if userId != "" {
-		query = selectStatement + `WHERE ` + userCondition
+		query = selectStatement + ` WHERE ` + userCondition
 	} else if date != "" {
-		query = selectStatement + `WHERE ` + dateCondition
+		query = selectStatement + ` WHERE ` + dateCondition
 	} else {
 		query = selectStatement
 	}
