@@ -2,9 +2,11 @@ package jwtauth
 
 import (
 	"errors"
+	"net/http"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/gin-gonic/gin"
 )
 
 type Claims struct {
@@ -31,4 +33,29 @@ func GetUserJwt(email string) (string, error) {
 	}
 
 	return tokenString, nil
+}
+
+func IsAuthorized(c *gin.Context) bool {
+	tokenStr, err := c.Cookie("jwt")
+
+	if err != nil {
+		c.String(http.StatusUnauthorized, "Unautorized. You must provide a JWT token to access this route. -> Sign in first...")
+		return false
+	}
+
+	claims := &Claims{}
+
+	token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
+		return SecretKey, nil
+	})
+	if err != nil {
+		c.String(http.StatusUnauthorized, "Invalid signature for jwt token")
+		return false
+	}
+	if !token.Valid {
+		c.String(http.StatusUnauthorized, "Invalid jwt token")
+		return false
+	}
+
+	return true
 }

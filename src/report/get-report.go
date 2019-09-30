@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/heroku/go-getting-started/src/jwtauth"
 )
 
 type TransactionInfo struct {
@@ -49,6 +50,11 @@ func getQuery(userId string, date string) string {
 
 func GetReport(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		if !jwtauth.IsAuthorized(c) {
+			c.String(http.StatusUnauthorized, "Unautorized, please sign in first.")
+			return
+		}
+
 		query := getQuery(c.Query("userId"), c.Query("date"))
 
 		rows, err := db.Query(query)
@@ -84,7 +90,7 @@ func GetReport(db *sql.DB) gin.HandlerFunc {
 
 		for _, info := range transactionRows {
 			fmt.Printf(
-				"transaction: %v \t date: %v \t user_b: %v \t user_s: %v \t",
+				"transaction: %v \t date: %v \t user_b: %v \t user_s: %v \n",
 				info.id,
 				info.date,
 				info.user_b_id,
