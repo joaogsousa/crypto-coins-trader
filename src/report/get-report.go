@@ -56,10 +56,12 @@ func GetReport(db *sql.DB) gin.HandlerFunc {
 		}
 
 		query := getQuery(c.Query("userId"), c.Query("date"))
+		fmt.Println("Query executed: ", query)
 
 		rows, err := db.Query(query)
 		if err != nil {
 			c.String(http.StatusInternalServerError, "Error querying the transactions report on database")
+			fmt.Println("Error querying the transactions report on database: ", err.Error())
 			return
 		}
 		defer rows.Close()
