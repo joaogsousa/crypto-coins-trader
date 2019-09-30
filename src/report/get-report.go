@@ -29,18 +29,18 @@ func getQuery(userId string, date string) string {
 	FROM transactions 
 	INNER JOIN users user_b on transactions.user_buying_id = user_b.id
 	INNER JOIN users user_s on transactions.user_selling_id = user_s.id
-	ORDER BY transactions.id ASC
+	ORDER BY transactions.id ASC 
 	`
-	userCondition := fmt.Sprintf("(transactions.user_buying_id = '%v' or transactions.user_selling_id = '%v') ", userId, userId)
-	dateCondition := fmt.Sprintf("transactions.date = '%v' ", date)
+	userCondition := fmt.Sprintf(`(transactions.user_buying_id = '%v' or transactions.user_selling_id = '%v') `, userId, userId)
+	dateCondition := fmt.Sprintf(`transactions.date = '%v' `, date)
 
 	var query string
 	if userId != "" && date != "" {
-		query = selectStatement + "WHERE " + userCondition + "AND " + dateCondition
+		query = selectStatement + `WHERE ` + userCondition + `AND ` + dateCondition
 	} else if userId != "" {
-		query = selectStatement + "WHERE " + userCondition
+		query = selectStatement + `WHERE ` + userCondition
 	} else if date != "" {
-		query = selectStatement + "WHERE " + dateCondition
+		query = selectStatement + `WHERE ` + dateCondition
 	} else {
 		query = selectStatement
 	}
