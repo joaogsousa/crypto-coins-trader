@@ -31,7 +31,7 @@ func getQuery(userId string, date string) string {
 	INNER JOIN users user_s on transactions.user_selling_id = user_s.id
 	ORDER BY transactions.id ASC 
 	`
-	userCondition := fmt.Sprintf(`(transactions.user_buying_id = '%v' or transactions.user_selling_id = '%v') `, userId, userId)
+	userCondition := fmt.Sprintf(`(transactions.user_buying_id = %v OR transactions.user_selling_id = %v) `, userId, userId)
 	dateCondition := fmt.Sprintf(`transactions.date = '%v' `, date)
 
 	var query string
