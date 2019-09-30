@@ -31,9 +31,7 @@ func getQuery(userId string, date string) string {
 
 func GetReport(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		fmt.Println("get query")
 		query := getQuery(c.Query("userId"), c.Query("date"))
-		fmt.Println("query getted")
 
 		rows, err := db.Query(query)
 		if err != nil {
@@ -41,8 +39,6 @@ func GetReport(db *sql.DB) gin.HandlerFunc {
 			return
 		}
 		defer rows.Close()
-
-		fmt.Println("query executed")
 
 		reportInfo := ReportInfo{}
 
@@ -58,10 +54,9 @@ func GetReport(db *sql.DB) gin.HandlerFunc {
 			); err != nil {
 				log.Fatal(err)
 			}
-			fmt.Println("Report found:", reportInfo)
+			fmt.Printf("Report found \n id: %v \t coins_amount: %v \t date: %v \n",
+				reportInfo.id, reportInfo.coins_amount, reportInfo.date)
 		}
-
-		fmt.Println("finished reading rows")
 
 		c.String(http.StatusOK, "Report sucssesfull")
 	}
