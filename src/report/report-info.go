@@ -15,6 +15,7 @@ type TradeInfo struct {
 }
 
 type ReportInfo struct {
+	id                 string
 	user_buying_id     string
 	user_selling_id    string
 	coins_amount       int

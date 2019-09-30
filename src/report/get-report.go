@@ -44,14 +44,21 @@ func GetReport(db *sql.DB) gin.HandlerFunc {
 
 		fmt.Println("query executed")
 
+		reportInfo := ReportInfo{}
+
 		for rows.Next() {
-			var (
-				id int
-			)
-			if err := rows.Scan(&id); err != nil {
+			if err := rows.Scan(
+				&reportInfo.id,
+				&reportInfo.user_buying_id,
+				&reportInfo.user_selling_id,
+				&reportInfo.coins_amount,
+				&reportInfo.coin_unitary_value,
+				&reportInfo.total_value,
+				&reportInfo.date,
+			); err != nil {
 				log.Fatal(err)
 			}
-			fmt.Printf("Report with id %v found\n", id)
+			fmt.Println("Report found:", reportInfo)
 		}
 
 		fmt.Println("finished reading rows")
