@@ -25,11 +25,10 @@ func getQuery(userId string, date string) string {
 	selectStatement := `
 	SELECT 
 	transactions.id, transactions.coins_amount, transactions.date,
-	user_b.id, user_b.email, user_s.id, user_s.email
+	user_b.id AS userb_id, user_b.email AS userb_email, user_s.id AS users_id, user_s.email AS users_email
 	FROM transactions 
-	INNER JOIN users user_b on transactions.user_buying_id = user_b.id
-	INNER JOIN users user_s on transactions.user_selling_id = user_s.id
-	ORDER BY transactions.id ASC 
+	INNER JOIN users AS user_b on transactions.user_buying_id = user_b.id
+	INNER JOIN users AS user_s on transactions.user_selling_id = user_s.id
 	`
 	userCondition := fmt.Sprintf(`(transactions.user_buying_id = %v OR transactions.user_selling_id = %v) `, userId, userId)
 	dateCondition := fmt.Sprintf(`transactions.date = '%v' `, date)
