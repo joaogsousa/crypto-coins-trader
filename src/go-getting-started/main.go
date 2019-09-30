@@ -10,8 +10,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/heroku/go-getting-started/src/register"
+	"github.com/heroku/go-getting-started/src/report"
 	"github.com/heroku/go-getting-started/src/signin"
 	"github.com/heroku/go-getting-started/src/transactions"
+
 	_ "github.com/heroku/x/hmetrics/onload"
 	_ "github.com/lib/pq"
 )
@@ -26,6 +28,7 @@ func main() {
 	router := gin.Default()
 
 	db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
+	defer db.Close()
 	if err != nil {
 		log.Fatalf("Error opening database: %q", err)
 	}
@@ -37,6 +40,7 @@ func main() {
 	router.POST("/users/register", register.NewUser(db))
 	router.POST("/users/signin", signin.SignIn(db))
 	router.POST("/transactions/:operation", transactions.OperationHandler(db))
+	router.GET("/transactions/report", report.GetReport(db))
 
 	router.Run(":" + port)
 }
