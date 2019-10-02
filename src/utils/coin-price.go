@@ -71,7 +71,7 @@ func (coinInfo *CoinInfo) GetPrice() float64 {
 		}
 
 		coinInfo.price = coinPrice
-		coinInfo.expirationTime = time.Now().Add(time.Hour).Unix()
+		coinInfo.expirationTime = time.Now().Add(time.Duration(3) * time.Minute).Unix()
 
 		return coinPrice
 	}
