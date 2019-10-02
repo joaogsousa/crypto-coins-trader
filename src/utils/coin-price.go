@@ -4,6 +4,7 @@ import (
 	"os"
 	"time"
 
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -20,15 +21,15 @@ var CoinObj *CoinInfo = &CoinInfo{}
 
 func coinPriceRequest() (float64, error) {
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest", nil)
+	req, err := http.NewRequest("GET",
+		"https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest", nil)
 	if err != nil {
 		fmt.Println("Error requesting coin price", err)
 		return 0, err
 	}
 
 	q := url.Values{}
-	q.Add("start", "1")
-	q.Add("limit", "5000")
+	q.Add("slug", "ethereum")
 	q.Add("convert", "USD")
 
 	apiKey := os.Getenv("COIN_MCAP_API_KEY")
@@ -46,7 +47,12 @@ func coinPriceRequest() (float64, error) {
 	fmt.Println("Request for price done, see response!")
 	fmt.Println(string(respBody))
 
-	return 1, nil
+	var result map[string]interface{}
+	json.Unmarshal(respBody, &result)
+
+	var coinPrice float64 = result.data.ehereum.quote.USD.price
+
+	return coinPrice, nil
 }
 
 func (coinInfo *CoinInfo) GetPrice() (float64, error) {
