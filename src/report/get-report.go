@@ -55,7 +55,6 @@ func GetReport(db *sql.DB) gin.HandlerFunc {
 		}
 
 		query := getQuery(c.Query("userId"), c.Query("date"))
-		fmt.Println("Query executed: ", query)
 
 		rows, err := db.Query(query)
 		if err != nil {
@@ -99,7 +98,10 @@ func GetReport(db *sql.DB) gin.HandlerFunc {
 			)
 		} */
 
-		c.AsciiJSON(http.StatusOK, transactionRows)
+		c.JSON(http.StatusOK, gin.H{
+			"transactions": transactionRows,
+			"trans0":       transactionRows[0],
+		})
 
 		// c.String(http.StatusOK, "Report sucssesfull")
 	}
