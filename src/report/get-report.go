@@ -12,13 +12,13 @@ import (
 )
 
 type TransactionInfo struct {
-	id           string
-	coins_amount int
-	date         string
-	user_b_id    int
-	user_b_email string
-	user_s_id    int
-	user_s_email string
+	Id           string
+	Coins_amount int
+	Date         string
+	User_b_id    int
+	User_b_email string
+	User_s_id    int
+	User_s_email string
 }
 
 func getQuery(userId string, date string) string {
@@ -70,13 +70,13 @@ func GetReport(db *sql.DB) gin.HandlerFunc {
 		for rows.Next() {
 			transactionInfo = TransactionInfo{}
 			if err := rows.Scan(
-				&transactionInfo.id,
-				&transactionInfo.coins_amount,
-				&transactionInfo.date,
-				&transactionInfo.user_b_id,
-				&transactionInfo.user_b_email,
-				&transactionInfo.user_s_id,
-				&transactionInfo.user_s_email,
+				&transactionInfo.Id,
+				&transactionInfo.Coins_amount,
+				&transactionInfo.Date,
+				&transactionInfo.User_b_id,
+				&transactionInfo.User_b_email,
+				&transactionInfo.User_s_id,
+				&transactionInfo.User_s_email,
 			); err != nil {
 				log.Fatal(err)
 			}
@@ -98,11 +98,7 @@ func GetReport(db *sql.DB) gin.HandlerFunc {
 			)
 		} */
 
-		c.JSON(http.StatusOK, gin.H{
-			"transactions": transactionRows,
-			"trans0":       transactionRows[0],
-		})
+		c.JSON(http.StatusOK, transactionRows)
 
-		// c.String(http.StatusOK, "Report sucssesfull")
 	}
 }
