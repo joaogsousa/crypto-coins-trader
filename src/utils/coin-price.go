@@ -51,7 +51,7 @@ func coinPriceRequest() (float64, error) {
 	json.Unmarshal(respBody, &result)
 
 	data := result["data"].(map[string]interface{})
-	ethereum := data["ethereum"].(map[string]interface{})
+	ethereum := data["1027"].(map[string]interface{})
 	quote := ethereum["quote"].(map[string]interface{})
 	usd := quote["USD"].(map[string]float64)
 	var price float64 = usd["price"]
