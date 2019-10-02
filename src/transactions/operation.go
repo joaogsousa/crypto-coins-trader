@@ -76,7 +76,7 @@ func Operation(db *sql.DB, c *gin.Context, operationType string) {
 		BuyingUserId:  buyingUserId,
 		SellingUserId: sellingUserId,
 		CoinsAmount:   coinsAmount,
-		OperationCost: float64(coinsAmount * utils.CoinPrice),
+		OperationCost: float64(coinsAmount) * utils.CoinObj.GetPrice(),
 		Date:          c.PostForm("date"),
 	}
 

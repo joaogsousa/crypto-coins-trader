@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"log"
 	"os"
 	"time"
 
@@ -44,8 +45,6 @@ func coinPriceRequest() (float64, error) {
 		return 0, err
 	}
 	respBody, _ := ioutil.ReadAll(resp.Body)
-	fmt.Println("Request for price done, see response!")
-	fmt.Println(string(respBody))
 
 	var result map[string]interface{}
 	json.Unmarshal(respBody, &result)
@@ -54,17 +53,26 @@ func coinPriceRequest() (float64, error) {
 	ethereum := data["1027"].(map[string]interface{})
 	quote := ethereum["quote"].(map[string]interface{})
 	usd := quote["USD"].(map[string]interface{})
-	fmt.Println("price returned: ", usd["price"])
 
 	return usd["price"].(float64), nil
 }
 
-func (coinInfo *CoinInfo) GetPrice() (float64, error) {
+func (coinInfo *CoinInfo) GetPrice() float64 {
 	nowTimestamp := time.Now().Unix()
 
 	if nowTimestamp <= coinInfo.expirationTime {
-		return coinInfo.price, nil
+		fmt.Println("Used previously set coin price, i.e, price not expired yet")
+		return coinInfo.price
 	} else {
-		return coinPriceRequest()
+		fmt.Println("fetch new coin price, i.e, price expired or not set yet")
+		coinPrice, err := coinPriceRequest()
+		if err != nil {
+			log.Fatal("Error getting the coin price")
+		}
+
+		coinInfo.price = coinPrice
+		coinInfo.expirationTime = time.Now().Add(time.Hour).Unix()
+
+		return coinPrice
 	}
 }
