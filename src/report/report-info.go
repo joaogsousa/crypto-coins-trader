@@ -2,6 +2,7 @@ package report
 
 import (
 	"database/sql"
+	"log"
 
 	"github.com/heroku/go-getting-started/src/utils"
 )
@@ -40,10 +41,16 @@ func (reportInfo *ReportInfo) ReportOperation(db *sql.DB) bool {
 }
 
 func (reportInfo *ReportInfo) Init(tradeInfo TradeInfo) {
+	coinPrice, err := utils.CoinObj.GetPrice()
+
+	if err != nil {
+		log.Fatal("Error getting the coin price")
+	}
+
 	reportInfo.user_buying_id = tradeInfo.BuyingUserId
 	reportInfo.user_selling_id = tradeInfo.SellingUserId
 	reportInfo.coins_amount = tradeInfo.CoinsAmount
-	reportInfo.coin_unitary_value = float64(utils.CoinPrice)
-	reportInfo.total_value = float64(tradeInfo.CoinsAmount * utils.CoinPrice)
+	reportInfo.coin_unitary_value = coinPrice
+	reportInfo.total_value = float64(tradeInfo.CoinsAmount) * coinPrice
 	reportInfo.date = tradeInfo.Date
 }
