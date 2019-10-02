@@ -13,4 +13,4 @@ heroku: $(DOCKER_CMD)
 	heroku container:push web
 
 build:
-	go build -o bin/go-getting-started ./src/go-getting-started
+	go build -o bin/red-coins-trader ./src/main
