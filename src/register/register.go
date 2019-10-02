@@ -29,16 +29,17 @@ func checkValidUser(user User) bool {
 func NewUser(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var user User = User{}
-		//c.String(200, "entered user register")
 		user.name = c.PostForm("name")
 		user.email = c.PostForm("email")
 		user.password = c.PostForm("password")
 		user.birthdate = c.PostForm("birthdate")
-		user.cash, _ = strconv.ParseFloat(c.PostForm("cash"), 64)
-		user.coins, _ = strconv.ParseInt(c.PostForm("coins"), 10, 64)
+		user.cash, _ = strconv.ParseFloat(c.DefaultPostForm("cash", "1000"), 64)
+		user.coins, _ = strconv.ParseInt(c.DefaultPostForm("coins", "1000"), 10, 64)
 
 		if !checkValidUser(user) {
-			c.String(http.StatusBadRequest, "User data was not correctly provided. Send: name,email,password and bithdate on POST form")
+			c.String(http.StatusBadRequest,
+				"User data was not correctly provided. Send: name,email,password and bithdate "+
+					"on POST form. cash and coins are optional.")
 		}
 
 		_, err := db.Exec(`
