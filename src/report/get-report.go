@@ -99,7 +99,7 @@ func GetReport(db *sql.DB) gin.HandlerFunc {
 			)
 		} */
 
-		c.JSON(http.StatusOK, transactionRows)
+		c.JSON(http.StatusOK, transactionRows[0])
 
 		// c.String(http.StatusOK, "Report sucssesfull")
 	}
