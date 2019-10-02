@@ -53,10 +53,10 @@ func coinPriceRequest() (float64, error) {
 	data := result["data"].(map[string]interface{})
 	ethereum := data["1027"].(map[string]interface{})
 	quote := ethereum["quote"].(map[string]interface{})
-	usd := quote["USD"].(map[string]float64)
-	var price float64 = usd["price"]
+	usd := quote["USD"].(map[string]interface{})
+	fmt.Println("price returned: ", usd["price"])
 
-	return price, nil
+	return usd["price"].(float64), nil
 }
 
 func (coinInfo *CoinInfo) GetPrice() (float64, error) {
