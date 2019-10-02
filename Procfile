@@ -1,1 +1,1 @@
-web: bin/red-coins-trader
+web: bin/main
