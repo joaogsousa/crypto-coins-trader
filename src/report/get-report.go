@@ -3,7 +3,6 @@ package report
 import (
 	"database/sql"
 	"fmt"
-	"log"
 
 	"net/http"
 
@@ -12,20 +11,22 @@ import (
 )
 
 type TransactionInfo struct {
-	Id           string
-	Coins_amount int
-	Date         string
-	User_b_id    int
-	User_b_email string
-	User_s_id    int
-	User_s_email string
+	Id                 string
+	Coins_amount       int
+	Date               string
+	User_b_id          int
+	User_b_email       string
+	User_s_id          int
+	User_s_email       string
+	Coin_unitary_value float64
 }
 
 func getQuery(userId string, date string) string {
 	selectStatement := `
 	SELECT 
 	transactions.id, transactions.coins_amount, transactions.date,
-	user_b.id AS userb_id, user_b.email AS userb_email, user_s.id AS users_id, user_s.email AS users_email
+	user_b.id AS userb_id, user_b.email AS userb_email, user_s.id AS users_id,
+	user_s.email AS users_email, transactions.coin_unitary_value
 	FROM transactions 
 	INNER JOIN users AS user_b on transactions.user_buying_id = user_b.id
 	INNER JOIN users AS user_s on transactions.user_selling_id = user_s.id
@@ -77,8 +78,10 @@ func GetReport(db *sql.DB) gin.HandlerFunc {
 				&transactionInfo.User_b_email,
 				&transactionInfo.User_s_id,
 				&transactionInfo.User_s_email,
+				&transactionInfo.Coin_unitary_value,
 			); err != nil {
-				log.Fatal(err)
+				c.String(http.StatusInternalServerError, err.Error())
+				return
 			}
 			transactionRows = append(transactionRows, transactionInfo)
 		}

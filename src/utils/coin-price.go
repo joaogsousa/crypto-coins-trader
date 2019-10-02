@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"log"
 	"os"
 	"time"
 
@@ -67,7 +66,8 @@ func (coinInfo *CoinInfo) GetPrice() float64 {
 		fmt.Println("fetch new coin price, i.e, price expired or not set yet")
 		coinPrice, err := coinPriceRequest()
 		if err != nil {
-			log.Fatal("Error getting the coin price")
+			fmt.Println("Error getting the coin price, defaulting to previously fetched price (default 0)")
+			return coinInfo.price
 		}
 
 		coinInfo.price = coinPrice
