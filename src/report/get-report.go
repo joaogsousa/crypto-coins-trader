@@ -89,7 +89,7 @@ func GetReport(db *sql.DB) gin.HandlerFunc {
 			return
 		}
 
-		for _, info := range transactionRows {
+		/* for _, info := range transactionRows {
 			fmt.Printf(
 				"transaction: %v \t date: %v \t user_b: %v \t user_s: %v \n",
 				info.id,
@@ -97,8 +97,10 @@ func GetReport(db *sql.DB) gin.HandlerFunc {
 				info.user_b_id,
 				info.user_s_id,
 			)
-		}
+		} */
 
-		c.String(http.StatusOK, "Report sucssesfull")
+		c.JSON(http.StatusOK, transactionRows)
+
+		// c.String(http.StatusOK, "Report sucssesfull")
 	}
 }
