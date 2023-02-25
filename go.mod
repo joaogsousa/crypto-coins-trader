@@ -11,8 +11,6 @@ require (
 	github.com/json-iterator/go v1.1.7 // indirect
 	github.com/lib/pq v1.2.0
 	github.com/mattn/go-isatty v0.0.9 // indirect
-	github.com/russross/blackfriday v2.0.0+incompatible
-	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
 	github.com/ugorji/go v1.1.7 // indirect
-	golang.org/x/sys v0.0.0-20190927073244-c990c680b611 // indirect
+	golang.org/x/sys v0.1.0 // indirect
 )
